@@ -3,8 +3,10 @@
 import secrets
 import math
 
+# you can change the number of rounds the cipher goes
+ROUNDS = 8
 
-def code(final_hash, key, rounds):
+def code(final_hash, key):
     # both encodes and decodes
     hash_len = len(final_hash)
 
@@ -12,7 +14,7 @@ def code(final_hash, key, rounds):
     second_half = int(final_hash[-int(hash_len/2):], 16)
 
     # decrypt
-    for _ in range(rounds):
+    for _ in range(ROUNDS):
 
         second_half, key = hash_function(second_half, key)
         first_half = first_half ^ second_half
@@ -37,7 +39,7 @@ def hash_function(hash, key):
     # takes a hex and transforms it
     # If you want to change the hash function, you can do it here
 
-    # hash = hash ^ key
+    # hash = hash
 
     return hash, key
 
@@ -50,29 +52,28 @@ def main():
     # predefined static message
     msg = "Hello World"
 
-    # you can change the number of rounds the cipher goes
-    ROUNDS = 10
     # uncomment if you want message to be inputted
     # msg = str(input("Secret message: "))
     pub_key = pvt_key = ""
 
     # random number
-    pvt_key = int(secrets.token_hex(8).encode('utf-8').hex(), 16)
+    pvt_key = secrets.token_hex(len(msg))
+    pvt_key = int(pvt_key[int(len(pvt_key)/2):], 16)
 
     # msg to hex
     pub_key = msg.encode('utf-8').hex()
 
-    final_hash, new_key = code(pub_key, pvt_key, ROUNDS)
+    final_hash, new_key = code(pub_key, pvt_key)
 
     # debug
-    # print(final_hash)
+    print("Secret cipher: ", final_hash)
 
     # print
     # print(f"The public key is: {pub_key} ")
     # print(f"The private key is: {pvt_key} ")
 
     # decode
-    original_hex, original_key = code(final_hash, new_key, ROUNDS)
+    original_hex, original_key = code(final_hash, new_key)
 
     print(f"The secret message was: {to_string(original_hex)}")
 
